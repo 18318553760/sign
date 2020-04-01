@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="keywords" content="基于PHP和JS的AES相互加密解密方法详解,AES加密解密">
+    <meta name="description" content="基于PHP和JS的AES相互加密解密方法详解,AES加密解密,PHP开发">
+    <meta name="author" content="wrongcode">
+    <meta name="version" content="1.0.0">
+    <title>基于PHP和JS的AES相互加密解密方法详解(CryptoJS)</title>
+   <!--  <script src="https://cdn.bootcss.com/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+    <script src="https://cdn.bootcss.com/crypto-js/3.1.9-1/aes.min.js"></script>
+    <script src="https://cdn.bootcss.com/zepto/1.1.5/zepto.min.js"></script> -->
+        <script src="./CryptoJS+v3.1.2/rollups/aes.js"></script>
+        <script src="./CryptoJS+v3.1.2/components/pad-zeropadding.js"></script>
+
+
+    <!-- https://www.xgllseo.com/?p=6033 -->
+    <script src="https://cdn.bootcss.com/zepto/1.1.5/zepto.min.js"></script>
+</head>
+<body>
+<div style="margin: 0;text-align:center;">
+    <h2>基于PHP和JS的AES相互加密解密方法详解(CryptoJS)</h2>
+
+</div>
+<div style="margin:0 18%;">
+    <h4>注意说明：</h4>
+    <ul>
+        <li>1. 首先引入CryptoJS包中的aes.js和pad-zeropadding.js</li>
+        <li>2. 其次引入了jquery.min.js和自己封装的function.js(内容主要是加密解密函数)</li>
+        <li>3. 加密解密过程中的向量和密钥必须保持一致</li>
+        <li>4. 进行加密的数据(字符串类型)：{"bindKey":"8IIYer87yte0vi7p"}</li>
+        <li>5. 加密结果是变化的在这不写(变化的原因是因为密钥取得是当前时间)</li>
+        <li>6. 具体详情可读代码(注释完整)</li>
+    </ul>
+</div>
+ 
+<div style="margin:0 18%;">
+    <h4>加密测试：</h4>
+    <ul>
+        <li>进行加密的数据(字符串类型)：{"bindKey":"8IIYer87yte0vi7p"}</li>
+        <li id="encrypt_key"></li>
+        <li id="encrypt_string"></li>
+    </ul>
+</div>
+<div style="margin:0 18%;">
+    <h4>解密测试：</h4>
+    <ul>
+        <li>进行解密密的数据(字符串类型、PHP端生成)：SnnV3T1CwGb8n0qFGOlYindTgT5JRv6nvPT0TKZWfuk=</li>
+        <li id="decrypt_key">解密的密钥(PHP端生成)：</li>
+        <li id="decrypt_string">JS解密后字符串：</li>
+    </ul>
+</div>
+
+<script type="text/javascript">   
+
+/**
+ * 接口数据加密函数
+ * @param str string 需加密的json字符串
+ * @param key string 加密key(16位)
+ * @param iv string 加密向量(16位)
+ * @return string 加密密文字符串
+ */
+function encrypt(str, key, iv) {
+    //密钥16位
+    var key = CryptoJS.enc.Utf8.parse(key);
+    //加密向量16位
+    var iv = CryptoJS.enc.Utf8.parse(iv);
+    var encrypted = CryptoJS.AES.encrypt(str, key, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.ZeroPadding
+    });
+    return encrypted;
+}
+ 
+/**
+ * 接口数据解密函数
+ * @param str string 已加密密文
+ * @param key string 加密key(16位)
+ * @param iv string 加密向量(16位)
+ * @returns {*|string} 解密之后的json字符串
+ */
+function decrypt(str, key, iv) {
+    //密钥16位
+    var key = CryptoJS.enc.Utf8.parse(key);
+    //加密向量16位
+    var iv = CryptoJS.enc.Utf8.parse(iv);
+    var decrypted = CryptoJS.AES.decrypt(str, key, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.ZeroPadding
+    });
+    return decrypted.toString(CryptoJS.enc.Utf8);
+}
+</script>
+
+<script>
+    //********************************加密**********************************
+    //获取当前时间戳13位 + 3位字符
+    var timestamp = new Date().getTime().toString() + "WZH";
+    //加密密钥16位
+    var encrypt_key = "f7rbsEwiO5bl1aTd";
+    //加密向量16位
+    var iv = 'f7rbsEwiO5bl1aTd';
+    //要加密的数据
+    var encrypt_string = '{"bindKey":"8IIYer87yte0vi7p"}';
+    //加密后密文（加密函数在function.js文件中）
+    var encrypted_string = encrypt(encrypt_string, encrypt_key, iv);
+    $("#encrypt_key").text("【JS加密密钥】：" + encrypt_key);
+    $("#encrypt_string").text("【JS加密后字符串】：" + encrypted_string);
+    //********************************结束**********************************
+    
+    //********************************解密**********************************
+    //解密密钥16位(解密向量同上)
+    var decrypt_key = 'f7rbsEwiO5bl1aTd';
+    //解密密文字符串
+    var decrypt_string = "SnnV3T1CwGb8n0qFGOlYindTgT5JRv6nvPT0TKZWfuk=";
+    var decrypted_string = decrypt(decrypt_string, decrypt_key, iv);
+    $("#decrypt_key").text("【解密的密钥(PHP端生成)】：" + decrypt_key);
+    $("#decrypt_string").text("【JS解密后字符串】：" + decrypted_string);
+    //********************************结束**********************************
+</script>
+</body>
